@@ -32,6 +32,10 @@ qt_add_qml_module(appForcksCryptoFiles
     QML_FILES
         Main.qml
         SOURCES cryptoutils.h cryptoutils.cpp
+        QML_FILES CustomButton.qml
+        QML_FILES CreateKeysForm.qml
+        QML_FILES EncryptFileForm.qml
+        QML_FILES DecryptFileForm.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

@@ -1,5 +1,15 @@
 #include "CryptoUtils.h"
 
+CryptoUtils::CryptoUtils(QObject *parent)
+{
+
+}
+
+CryptoUtils::~CryptoUtils()
+{
+
+}
+
 bool CryptoUtils::createRsaKeys(const QString &publicKeyPath, const QString &privateKeyPath) {
     if(!QFile::exists(publicKeyPath) && !QFile::exists(privateKeyPath)){
         RSA *rsa = RSA_new();
