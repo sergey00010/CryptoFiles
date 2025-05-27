@@ -4,7 +4,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQuick.Controls.Material 2.15
 
-import CryptoUtils
+import WorkWithEncryption 1.0
 
 Button{
     Material.background: pressed ? Qt.darker(Material.primary, 1.2) : Material.primary

@@ -2,9 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Controls.Material 2.15
-import Qt.labs.platform 1.1
 
-import CryptoUtils
+import QtQuick.Dialogs
+
+import WorkWithEncryption 1.0
 
 ColumnLayout{
     Label{
@@ -32,11 +33,10 @@ ColumnLayout{
             FileDialog {
                 id: fileDialogPublicKeyEncrypt
                 title: "select files"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-                nameFilters: ["key (*.pem)", "All files (*)"]
+                nameFilters: ["key (*.pem)","All files (*)"]
 
                 onAccepted: {
-                    publicKeyPathEncrypt.text = String(fileDialogPublicKeyEncrypt.file).replace("file:///", "")
+                    publicKeyPathEncrypt.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -62,11 +62,10 @@ ColumnLayout{
             FileDialog {
                 id: fileDialogFileEncrypt
                 title: "select files"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-                nameFilters: ["text files (*.txt)", "All files (*)"]
+                nameFilters: ["All files (*)"]
 
                 onAccepted: {
-                    fileEncrypt.text = String(fileDialogFileEncrypt.file).replace("file:///", "")
+                    fileEncrypt.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -76,14 +75,26 @@ ColumnLayout{
         Layout.fillHeight: true
         text: "encrypt file"
         onClicked: {
+            fileDialogFileEncryptSave.open();
+        }
+    }
+
+    FileDialog {
+        id: fileDialogFileEncryptSave
+        title: "write filename"
+        nameFilters: ["All files (*)"]
+        fileMode: FileDialog.SaveFile
+        onAccepted: {
+            var saveFilePath = selectedFile.toString().replace("file:///", "")
+
             if (publicKeyPathEncrypt.text === "" || fileEncrypt.text === "") {
                 statusLabel.text = "Please select all required files"
                 return
             }
 
-            var encryptedFile = fileEncrypt.text+".enc";
+            var encryptedFile = saveFilePath;
 
-            if (cryptoUtils.encryptFile(fileEncrypt.text, encryptedFile, publicKeyPathEncrypt.text)) {
+            if (workWithEncription.encryptFile(fileEncrypt.text, encryptedFile, publicKeyPathEncrypt.text)) {
                 statusLabel.text = "File encrypted successfully"
             } else {
                 statusLabel.text = "Failed to encrypt file"

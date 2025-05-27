@@ -36,6 +36,8 @@ qt_add_qml_module(appForcksCryptoFiles
         QML_FILES CreateKeysForm.qml
         QML_FILES EncryptFileForm.qml
         QML_FILES DecryptFileForm.qml
+        SOURCES workwithencryption.h workwithencryption.cpp
+        QML_FILES
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

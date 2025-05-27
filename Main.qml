@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Controls.Material 2.15
 import QtQuick.Dialogs 6.0
 
-import CryptoUtils
+import WorkWithEncryption 1.0
 
 ApplicationWindow {
     width: 600

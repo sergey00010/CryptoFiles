@@ -1,9 +1,11 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import CryptoUtils
 import QtQuick.Controls.Material 2.15
-import Qt.labs.platform 1.1
+
+import QtQuick.Dialogs
+
+import WorkWithEncryption 1.0
 
 ColumnLayout{
     Label{
@@ -31,11 +33,10 @@ ColumnLayout{
             FileDialog {
                 id: fileDialogPublicKeyGenerate
                 title: "select file"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
                 nameFilters: ["key (*.pem)", "All files (*)"]
                 fileMode: FileDialog.SaveFile
                 onAccepted: {
-                    publicKeyPathGenerate.text = String(fileDialogPublicKeyGenerate.file).replace("file:///", "")
+                    publicKeyPathGenerate.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -58,14 +59,23 @@ ColumnLayout{
                 Layout.fillHeight: true
                 placeholderText: "private key"
             }
+            ComboBox {
+                id: selectKeySizeComboBox
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width/7
+
+                Material.accent: Material.Blue
+                Material.foreground: Material.Blue
+
+                model: [512, 1024, 2048, 4096]
+            }
             FileDialog {
                 id: fileDialogPrivateKeyGenerate
                 title: "select file"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
                 nameFilters: ["key (*.pem)", "All files (*)"]
                 fileMode: FileDialog.SaveFile
                 onAccepted: {
-                    privateKeyPathGenerate.text = String(fileDialogPrivateKeyGenerate.file).replace("file:///", "")
+                    privateKeyPathGenerate.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -79,14 +89,38 @@ ColumnLayout{
                 statusLabel.text = "Please select both key paths"
                 return
             }
-            if (cryptoUtils.createRsaKeys(publicKeyPathGenerate.text, privateKeyPathGenerate.text)) {
-                statusLabel.text = "RSA keys generated successfully"
+            if (workWithEncription.createRsaKeys(publicKeyPathGenerate.text, privateKeyPathGenerate.text, selectKeySizeComboBox.currentText)) {
+                //statusLabel.text = "RSA keys generated successfully"
             } else {
-                statusLabel.text = "Failed to generate RSA keys"
+                //statusLabel.text = "Failed to generate RSA keys"
             }
         }
     }
 
+    MessageDialog {
+        id: overwriteDialog
+        title: "Confirmation"
+        text: "Are you sure you want to generate these keys?"
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+
+        onAccepted: workWithEncription.onDialogResult(true)
+        onRejected: workWithEncription.onDialogResult(false)
+    }
+
+    Connections {
+        target: workWithEncription
+        onShowConfirmationDialog: {
+            overwriteDialog.text = message
+            overwriteDialog.open()
+        }
+        onKeysCreationFinished: {
+            if(success) {
+                statusLabel.text = "Keys created successfully"
+            } else {
+                statusLabel.text = "Operation cancelled"
+            }
+        }
+    }
 
 }
 

@@ -2,9 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Controls.Material 2.15
-import Qt.labs.platform 1.1
 
-import CryptoUtils
+import QtQuick.Dialogs
+
+import WorkWithEncryption 1.0
 
 ColumnLayout{
     function removeFileExtension(path) {
@@ -42,11 +43,10 @@ ColumnLayout{
             FileDialog {
                 id: fileDialogPrivateKeyDecrypt
                 title: "select file"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
                 nameFilters: ["key (*.pem)", "All files (*)"]
 
                 onAccepted: {
-                    privateKeyPathDecrypt.text = String(fileDialogPrivateKeyDecrypt.file).replace("file:///", "")
+                    privateKeyPathDecrypt.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -72,11 +72,10 @@ ColumnLayout{
             FileDialog {
                 id: fileDialogDecryptFile
                 title: "select file"
-                folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-                nameFilters: ["text files (*.txt)", "All files(*)"]
+                nameFilters: ["All files(*)"]
 
                 onAccepted: {
-                    decryptFile.text = String(fileDialogDecryptFile.file).replace("file:///", "")
+                    decryptFile.text = selectedFile.toString().replace("file:///", "")
                 }
             }
         }
@@ -86,14 +85,21 @@ ColumnLayout{
         Layout.fillHeight: true
         text: "decrypt file"
         onClicked: {
+            fileDialogFileDecryptSave.open()
+        }
+    }
+
+    FileDialog {
+        id: fileDialogFileDecryptSave
+        title: "write filename"
+        nameFilters: ["All files (*)"]
+        fileMode: FileDialog.SaveFile
+        onAccepted: {
             if (privateKeyPathDecrypt.text === "" || decryptFile.text === "") {
                 statusLabel.text = "Please select all required files"
                 return
             }
-
-            var withoutEnc = removeFileExtension(decryptFile.text);
-
-            if (cryptoUtils.decryptFile(decryptFile.text, withoutEnc, privateKeyPathDecrypt.text )) {
+            if (workWithEncription.decryptFile(decryptFile.text, decryptFile.text, privateKeyPathDecrypt.text )) {
                 statusLabel.text = "File decrypted successfully"
             } else {
 
