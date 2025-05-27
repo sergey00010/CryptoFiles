@@ -2,15 +2,16 @@
 #include <QQmlApplicationEngine>
 
 #include <QQmlContext>
+#include <QIcon>
 
 #include "workwithencryption.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/icons/img/icon.ico"));
 
     qmlRegisterType<WorkWithEncryption>("WorkWithEncryption", 1, 0, "WorkWithEncryption");
-
     QQmlApplicationEngine engine;
 
     WorkWithEncryption workWithEncription;

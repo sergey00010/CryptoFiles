@@ -1,0 +1,2 @@
+// resources/app.rc
+IDI_ICON1 ICON "img/icon.ico"

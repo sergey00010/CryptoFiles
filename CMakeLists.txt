@@ -22,9 +22,20 @@ find_package(OpenSSL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 qt_standard_project_setup(REQUIRES 6.5)
 
-qt_add_executable(appForcksCryptoFiles
-    main.cpp
-)
+
+
+if (WIN32)
+    set(RC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+    set_source_files_properties(${RC_FILE} PROPERTIES LANGUAGE RC)
+    qt_add_executable(appForcksCryptoFiles
+        main.cpp
+        ${RC_FILE}
+    )
+else()
+    qt_add_executable(appForcksCryptoFiles
+        main.cpp
+    )
+endif()
 
 qt_add_qml_module(appForcksCryptoFiles
     URI ForcksCryptoFiles
@@ -38,6 +49,7 @@ qt_add_qml_module(appForcksCryptoFiles
         QML_FILES DecryptFileForm.qml
         SOURCES workwithencryption.h workwithencryption.cpp
         QML_FILES
+        RESOURCES images.qrc
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -63,3 +75,4 @@ install(TARGETS appForcksCryptoFiles
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+

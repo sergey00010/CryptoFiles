@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Controls.Material 2.15
 import QtQuick.Dialogs 6.0
+import QtQuick.Window 2.15
 
 import WorkWithEncryption 1.0
 
