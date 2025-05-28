@@ -14,6 +14,8 @@ class WorkWithEncryption : public CryptoUtils
 public:
     explicit WorkWithEncryption(QObject *parent = nullptr);
     Q_INVOKABLE  bool createRsaKeys(const QString &publicKeyPath, const QString &privateKeyPath, int size) override;
+    Q_INVOKABLE  bool encryptFile(const QString &inputFile, const QString &encryptedFile, const QString &publicKeyPath, bool deleteOriginalFileCheck);
+    Q_INVOKABLE  bool decryptFile(const QString &encryptedFile, const QString &decryptedFile, const QString &privateKeyPath, bool deleteEncryptFileCheck);
 
 public slots:
     void onDialogResult(bool accepted);

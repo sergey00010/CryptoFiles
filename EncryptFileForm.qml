@@ -70,11 +70,38 @@ ColumnLayout{
             }
         }
     }
+
+    RowLayout{
+        Layout.fillWidth: true
+        Layout.preferredHeight: parent.height / 10
+        Label {
+            text: "Delete original file after encryption"
+            font.pointSize: 10
+        }
+        Item{
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+        }
+        CheckBox {
+            id: deleteOriginalFileCheck
+            Layout.preferredWidth: parent.width / 10
+            Layout.fillHeight: true
+            checked: false
+        }
+
+    }
+
     CustomButton {
         Layout.fillWidth: true
         Layout.fillHeight: true
         text: "encrypt file"
         onClicked: {
+            var saveFilePath = fileEncrypt.text
+
+            var fileNameWithExtension = saveFilePath.split('/').pop()
+            var fileNameWithoutExtension = fileNameWithExtension.split('.').slice(0, -1).join('.')
+            fileDialogFileEncryptSave.selectedFile =  Qt.resolvedUrl(fileNameWithoutExtension)
+
             fileDialogFileEncryptSave.open();
         }
     }
@@ -84,6 +111,7 @@ ColumnLayout{
         title: "write filename"
         nameFilters: ["All files (*)"]
         fileMode: FileDialog.SaveFile
+
         onAccepted: {
             var saveFilePath = selectedFile.toString().replace("file:///", "")
 
@@ -94,7 +122,7 @@ ColumnLayout{
 
             var encryptedFile = saveFilePath;
 
-            if (workWithEncription.encryptFile(fileEncrypt.text, encryptedFile, publicKeyPathEncrypt.text)) {
+            if (workWithEncription.encryptFile(fileEncrypt.text, encryptedFile, publicKeyPathEncrypt.text, deleteOriginalFileCheck.checked)) {
                 statusLabel.text = "File encrypted successfully"
             } else {
                 statusLabel.text = "Failed to encrypt file"

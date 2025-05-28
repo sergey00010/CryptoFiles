@@ -115,15 +115,22 @@ bool CryptoUtils::encryptFile(const QString &inputFile, const QString &encrypted
         return false;
     }
 
-    // Recording a File Extension
+    // Save original file name and extension
     QFileInfo fileInfo(inputFile);
+    QString originalName = fileInfo.completeBaseName(); // Имя файла без расширения
     QString originalExtension = fileInfo.suffix();
+
+    // Convert to UTF-8 bytes
+    QByteArray nameBytes = originalName.toUtf8();
     QByteArray extensionBytes = originalExtension.toUtf8();
+
+    // Write lengths and data
+    qint32 nameLength = nameBytes.length();
     qint32 extensionLength = extensionBytes.length();
 
-    // Write down the length of the extension
+    out.write(reinterpret_cast<const char*>(&nameLength), sizeof(qint32));
     out.write(reinterpret_cast<const char*>(&extensionLength), sizeof(qint32));
-    // Write the extension itself
+    out.write(nameBytes);
     out.write(extensionBytes);
 
     // Write encrypted key length, encrypted key and IV
@@ -175,14 +182,26 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
         return false;
     }
 
-    // Read file extension
-    qint32 extensionLength;
-    if (in.read(reinterpret_cast<char*>(&extensionLength), sizeof(qint32)) != sizeof(qint32)) {
-        qCritical() << "Failed to read extension length.";
+    // Read file name and extension lengths
+    qint32 nameLength, extensionLength;
+    if (in.read(reinterpret_cast<char*>(&nameLength), sizeof(qint32)) != sizeof(qint32) ||
+        in.read(reinterpret_cast<char*>(&extensionLength), sizeof(qint32)) != sizeof(qint32)) {
+        qCritical() << "Failed to read name or extension length.";
         in.close();
         return false;
     }
 
+    // Read file name
+    QByteArray nameBytes;
+    nameBytes.resize(nameLength);
+    if (in.read(nameBytes.data(), nameLength) != nameLength) {
+        qCritical() << "Failed to read original name.";
+        in.close();
+        return false;
+    }
+    QString originalName = QString::fromUtf8(nameBytes);
+
+    // Read file extension
     QByteArray extensionBytes;
     extensionBytes.resize(extensionLength);
     if (in.read(extensionBytes.data(), extensionLength) != extensionLength) {
@@ -191,7 +210,6 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
         return false;
     }
     QString originalExtension = QString::fromUtf8(extensionBytes);
-
 
     // 2. Read encrypted AES key length
     int encKeyLen;
@@ -247,11 +265,18 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
         return false;
     }
 
-    // 7. Prepare output file name with original extension
-    QString finalDecryptedFilePath = decryptedFile;
-    if (!originalExtension.isEmpty()) {
-        QFileInfo decryptedFileInfo(decryptedFile);
-        finalDecryptedFilePath = decryptedFileInfo.absolutePath() + "/" + decryptedFileInfo.baseName() + "." + originalExtension;
+    // 7. Prepare output file with original name and extension
+    QString finalDecryptedFilePath;
+    QFileInfo decryptedFileInfo(decryptedFile);
+
+    if (!originalName.isEmpty() || !originalExtension.isEmpty()) {
+        QString fileName = originalName;
+        if (!originalExtension.isEmpty()) {
+            fileName += "." + originalExtension;
+        }
+        finalDecryptedFilePath = decryptedFileInfo.absolutePath() + "/" + fileName;
+    } else {
+        finalDecryptedFilePath = decryptedFile;
     }
 
     QFile out(finalDecryptedFilePath);
@@ -271,11 +296,8 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
     qint64 bytesRead;
     bool lastBlock = false;
 
-    // Keep track of the previous IV for decryption (OpenSSL updates 'iv' internally for CBC)
     unsigned char currentIv[AES_BLOCK_SIZE];
     memcpy(currentIv, iv, AES_BLOCK_SIZE);
-
-    qint64 totalBytesDecrypted = 0; // Для отслеживания общего количества дешифрованных байтов
 
     while ((bytesRead = in.read(reinterpret_cast<char*>(inBuf), BUFFER_SIZE)) > 0) {
         if (in.atEnd()) lastBlock = true;
@@ -283,7 +305,6 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
         AES_cbc_encrypt(inBuf, outBuf, bytesRead, &aes, currentIv, AES_DECRYPT);
 
         qint64 bytesToWrite = bytesRead;
-        // Remove PKCS#7 padding from the last block
         if (lastBlock) {
             int padding = outBuf[bytesRead - 1];
             if (padding > 0 && padding <= AES_BLOCK_SIZE) {
@@ -306,7 +327,6 @@ bool CryptoUtils::decryptFile(const QString &encryptedFile, const QString &decry
         }
 
         out.write(reinterpret_cast<char*>(outBuf), bytesToWrite);
-        totalBytesDecrypted += bytesToWrite;
     }
 
     in.close();

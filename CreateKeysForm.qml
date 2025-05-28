@@ -34,7 +34,13 @@ ColumnLayout{
                 id: fileDialogPublicKeyGenerate
                 title: "select file"
                 nameFilters: ["key (*.pem)", "All files (*)"]
+                defaultSuffix: "pem"
                 fileMode: FileDialog.SaveFile
+
+                Component.onCompleted: {
+                    fileDialogPublicKeyGenerate.selectedFile = Qt.resolvedUrl("public.pem")
+                }
+
                 onAccepted: {
                     publicKeyPathGenerate.text = selectedFile.toString().replace("file:///", "")
                 }
@@ -73,7 +79,13 @@ ColumnLayout{
                 id: fileDialogPrivateKeyGenerate
                 title: "select file"
                 nameFilters: ["key (*.pem)", "All files (*)"]
+                defaultSuffix: "pem"
                 fileMode: FileDialog.SaveFile
+
+                Component.onCompleted: {
+                    fileDialogPrivateKeyGenerate.selectedFile = Qt.resolvedUrl("private.pem")
+                }
+
                 onAccepted: {
                     privateKeyPathGenerate.text = selectedFile.toString().replace("file:///", "")
                 }

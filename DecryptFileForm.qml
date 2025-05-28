@@ -80,26 +80,35 @@ ColumnLayout{
             }
         }
     }
+    RowLayout{
+        Layout.fillWidth: true
+        Layout.preferredHeight: parent.height / 10
+        Label {
+            text: "Delete encrypt file after decryption"
+            font.pointSize: 10
+        }
+        Item{
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+        }
+        CheckBox {
+            id: deleteEncryptFileCheck
+            Layout.preferredWidth: parent.width / 10
+            Layout.fillHeight: true
+            checked: false
+        }
+
+    }
     CustomButton {
         Layout.fillWidth: true
         Layout.fillHeight: true
         text: "decrypt file"
         onClicked: {
-            fileDialogFileDecryptSave.open()
-        }
-    }
-
-    FileDialog {
-        id: fileDialogFileDecryptSave
-        title: "write filename"
-        nameFilters: ["All files (*)"]
-        fileMode: FileDialog.SaveFile
-        onAccepted: {
             if (privateKeyPathDecrypt.text === "" || decryptFile.text === "") {
                 statusLabel.text = "Please select all required files"
                 return
             }
-            if (workWithEncription.decryptFile(decryptFile.text, decryptFile.text, privateKeyPathDecrypt.text )) {
+            if (workWithEncription.decryptFile(decryptFile.text, decryptFile.text, privateKeyPathDecrypt.text, deleteEncryptFileCheck.checked)) {
                 statusLabel.text = "File decrypted successfully"
             } else {
 

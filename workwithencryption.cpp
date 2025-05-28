@@ -21,6 +21,32 @@ bool WorkWithEncryption::createRsaKeys(const QString &publicKeyPath, const QStri
     }
 }
 
+bool WorkWithEncryption::encryptFile(const QString &inputFile, const QString &encryptedFile, const QString &publicKeyPath, bool deleteOriginalFileCheck)
+{
+    bool result = CryptoUtils::encryptFile(inputFile,encryptedFile,publicKeyPath);
+    if(result){
+        if(deleteOriginalFileCheck && QFile::exists(inputFile)){
+            QFile::remove(inputFile);
+        }
+        return true;
+    }else{
+        return false;
+    }
+}
+
+bool WorkWithEncryption::decryptFile(const QString &encryptedFile, const QString &decryptedFile, const QString &privateKeyPath, bool deleteEncryptFileCheck)
+{
+    bool result = CryptoUtils::decryptFile(encryptedFile,decryptedFile,privateKeyPath);
+    if(result){
+        if(deleteEncryptFileCheck && QFile::exists(encryptedFile)){
+            QFile::remove(encryptedFile);
+        }
+        return true;
+    }else{
+        return false;
+    }
+}
+
 
 void WorkWithEncryption::onDialogResult(bool accepted)
 {
