@@ -84,7 +84,7 @@ ColumnLayout{
         Layout.fillWidth: true
         Layout.preferredHeight: parent.height / 10
         Label {
-            text: "Delete encrypt file after decryption"
+            text: "Delete encrypted file after decryption"
             font.pointSize: 10
         }
         Item{
