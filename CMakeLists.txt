@@ -9,13 +9,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set your openssl directory
 if(MSVC)
     set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64/")
-    include_directories("${OPENSSL_ROOT_DIR}/include")
+    # set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
 elseif(MINGW)
     set(OPENSSL_ROOT_DIR "C:/msys64/mingw64")
+    # set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
+elseif(ANDROID)
+    set(OPENSSL_ROOT_DIR "D:/Downloads/build/build/openssl/arm64-v8a")
+
+    set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
+    set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libcrypto.a")
+    set(OPENSSL_SSL_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libssl.a")
+
+    message("OPENSSL_ROOT_DIR = ${OPENSSL_ROOT_DIR}")
+    message("OPENSSL_INCLUDE_DIR = ${OPENSSL_INCLUDE_DIR}")
 else()
     message(WARNING "Unknown compiler, using default OpenSSL path")
     set(OPENSSL_ROOT_DIR "C:/OpenSSL")
+    # set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
 endif()
+
+
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 
